@@ -1,0 +1,61 @@
+package com.mycompany.loginform;
+
+public class LoginApp {
+
+    public static void main(String[] args) {
+        // Run the Login Form
+        new LoginForm().setVisible(true);
+    }
+}
+
+package com.mycompany.loginform;
+
+import javax.swing.*;
+
+public class LoginForm extends JFrame {
+
+    // Constructor for the Login Form
+    public LoginForm() {
+        setTitle("Login Page");
+        setSize(400, 300);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        // Create Panel
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+
+        // Title Label
+        JLabel titleLabel = new JLabel("Login Page", SwingConstants.CENTER);
+        titleLabel.setBounds(130, 10, 150, 30);
+        panel.add(titleLabel);
+
+        // Username Label & Field
+        JLabel userLabel = new JLabel("Username:");
+        userLabel.setBounds(50, 60, 100, 25);
+        panel.add(userLabel);
+
+        JTextField usernameField = new JTextField();
+        usernameField.setBounds(150, 60, 180, 25);
+        usernameField.setToolTipText("Enter your username");
+        panel.add(usernameField);
+
+        // Password Label & Field
+        JLabel passLabel = new JLabel("Password:");
+        passLabel.setBounds(50, 100, 100, 25);
+        panel.add(passLabel);
+
+        JPasswordField passwordField = new JPasswordField();
+        passwordField.setBounds(150, 100, 180, 25);
+        passwordField.setToolTipText("Enter your password");
+        panel.add(passwordField);
+
+        // Login Button
+        JButton loginButton = new JButton("Login");
+        loginButton.setBounds(150, 150, 100, 30);
+        panel.add(loginButton);
+
+        // Add panel to Frame
+        add(panel);
+    }
+}
