@@ -1,0 +1,505 @@
+addproducts:
+package com.mycompany.loginform;
+
+import javax.swing.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class AddProductForm extends JFrame {
+
+    private JTextField nameField, categoryField, priceField, quantityField;
+    private JLabel statusLabel;
+
+    public AddProductForm() {
+        setTitle("Add New Product");
+        setSize(350, 300);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(null);
+
+        JLabel nameLabel = new JLabel("Product Name:");
+        nameLabel.setBounds(20, 20, 100, 25);
+        add(nameLabel);
+
+        nameField = new JTextField();
+        nameField.setBounds(130, 20, 150, 25);
+        add(nameField);
+
+        JLabel categoryLabel = new JLabel("Category:");
+        categoryLabel.setBounds(20, 60, 100, 25);
+        add(categoryLabel);
+
+        categoryField = new JTextField();
+        categoryField.setBounds(130, 60, 150, 25);
+        add(categoryField);
+
+        JLabel priceLabel = new JLabel("Price:");
+        priceLabel.setBounds(20, 100, 100, 25);
+        add(priceLabel);
+
+        priceField = new JTextField();
+        priceField.setBounds(130, 100, 150, 25);
+        add(priceField);
+
+        JLabel quantityLabel = new JLabel("Quantity:");
+        quantityLabel.setBounds(20, 140, 100, 25);
+        add(quantityLabel);
+
+        quantityField = new JTextField();
+        quantityField.setBounds(130, 140, 150, 25);
+        add(quantityField);
+
+        JButton addButton = new JButton("Add Product");
+        addButton.setBounds(100, 180, 120, 30);
+        add(addButton);
+
+        statusLabel = new JLabel("");
+        statusLabel.setBounds(20, 220, 300, 25);
+        add(statusLabel);
+
+        addButton.addActionListener(e -> addProduct());
+    }
+
+    private void addProduct() {
+        String name = nameField.getText();
+        String category = categoryField.getText();
+        String priceText = priceField.getText();
+        String quantityText = quantityField.getText();
+
+        if (name.isEmpty() || category.isEmpty() || priceText.isEmpty() || quantityText.isEmpty()) {
+            statusLabel.setText("Please fill all fields.");
+            return;
+        }
+
+        try {
+            double price = Double.parseDouble(priceText);
+            int quantity = Integer.parseInt(quantityText);
+
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/loginapp", "root", "");
+
+            String sql = "INSERT INTO products (name, category, price, quantity) VALUES (?, ?, ?, ?)";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, name);
+            stmt.setString(2, category);
+            stmt.setDouble(3, price);
+            stmt.setInt(4, quantity);
+
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted > 0) {
+                statusLabel.setText("Product added successfully!");
+            } else {
+                statusLabel.setText("Failed to add product.");
+            }
+
+            con.close();
+        } catch (Exception ex) {
+            statusLabel.setText("Error: " + ex.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new AddProductForm().setVisible(true));
+    }
+}
+addbuyer:
+package com.mycompany.loginform;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class AddBuyerForm extends JFrame {
+    private JTextField nameField, emailField, phoneField;
+    private JTextArea addressArea;
+    private JLabel statusLabel;
+
+    public AddBuyerForm() {
+        setTitle("Add Buyer");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(null);
+
+        JLabel title = new JLabel("Add New Buyer");
+        title.setBounds(130, 10, 200, 30);
+        add(title);
+
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setBounds(30, 60, 100, 25);
+        add(nameLabel);
+
+        nameField = new JTextField();
+        nameField.setBounds(150, 60, 200, 25);
+        add(nameField);
+
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setBounds(30, 100, 100, 25);
+        add(emailLabel);
+
+        emailField = new JTextField();
+        emailField.setBounds(150, 100, 200, 25);
+        add(emailField);
+
+        JLabel phoneLabel = new JLabel("Phone:");
+        phoneLabel.setBounds(30, 140, 100, 25);
+        add(phoneLabel);
+
+        phoneField = new JTextField();
+        phoneField.setBounds(150, 140, 200, 25);
+        add(phoneField);
+
+        JLabel addressLabel = new JLabel("Address:");
+        addressLabel.setBounds(30, 180, 100, 25);
+        add(addressLabel);
+
+        addressArea = new JTextArea();
+        addressArea.setBounds(150, 180, 200, 60);
+        addressArea.setLineWrap(true);
+        add(addressArea);
+
+        JButton addButton = new JButton("Add Buyer");
+        addButton.setBounds(150, 260, 120, 30);
+        add(addButton);
+
+        statusLabel = new JLabel("");
+        statusLabel.setBounds(30, 310, 300, 25);
+        add(statusLabel);
+
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addBuyerToDatabase();
+            }
+        });
+
+        setVisible(true);
+    }
+
+    private void addBuyerToDatabase() {
+        String name = nameField.getText();
+        String email = emailField.getText();
+        String phone = phoneField.getText();
+        String address = addressArea.getText();
+
+        if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || address.isEmpty()) {
+            statusLabel.setText("Please fill all fields.");
+            return;
+        }
+
+        try {
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/loginapp", "root", "");
+            String sql = "INSERT INTO buyers (name, email, phone, address) VALUES (?, ?, ?, ?)";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, name);
+            stmt.setString(2, email);
+            stmt.setString(3, phone);
+            stmt.setString(4, address);
+
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted > 0) {
+                statusLabel.setText("Buyer added successfully!");
+                clearFields();
+            } else {
+                statusLabel.setText("Failed to add buyer.");
+            }
+
+            con.close();
+        } catch (Exception ex) {
+            statusLabel.setText("Error: " + ex.getMessage());
+        }
+    }
+
+    private void clearFields() {
+        nameField.setText("");
+        emailField.setText("");
+        phoneField.setText("");
+        addressArea.setText("");
+    }
+
+    public static void main(String[] args) {
+        new AddBuyerForm();
+    }
+}
+
+
+managebuyers:
+package com.mycompany.loginform;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.*;
+import java.sql.*;
+
+public class ManageBuyersForm extends JFrame {
+
+    private JTable buyersTable;
+    private JButton deleteButton, refreshButton;
+    private JLabel statusLabel;
+
+    public ManageBuyersForm() {
+        setTitle("Manage Buyers");
+        setSize(600, 400);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Table model
+        DefaultTableModel tableModel = new DefaultTableModel(new String[]{"ID", "Name", "Email", "Phone", "Address"}, 0);
+        buyersTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(buyersTable);
+
+        // Buttons
+        deleteButton = new JButton("Delete Selected Buyer");
+        refreshButton = new JButton("Refresh");
+
+        // Status label
+        statusLabel = new JLabel("Status: ");
+
+        // Panel Layout
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+
+        scrollPane.setBounds(20, 20, 540, 200);
+        deleteButton.setBounds(100, 240, 180, 30);
+        refreshButton.setBounds(320, 240, 100, 30);
+        statusLabel.setBounds(20, 300, 400, 30);
+
+        panel.add(scrollPane);
+        panel.add(deleteButton);
+        panel.add(refreshButton);
+        panel.add(statusLabel);
+
+        add(panel);
+
+        // Load data on startup
+        loadBuyers();
+
+        // Refresh button action
+        refreshButton.addActionListener(e -> loadBuyers());
+
+        // Delete button action
+        deleteButton.addActionListener(e -> deleteSelectedBuyer());
+    }
+
+    private void loadBuyers() {
+        DefaultTableModel model = (DefaultTableModel) buyersTable.getModel();
+        model.setRowCount(0); // clear table
+
+        try (Connection con = DatabaseConnection.getConnection()) {
+            String sql = "SELECT * FROM buyers";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String phone = rs.getString("phone");
+                String address = rs.getString("address");
+
+                model.addRow(new Object[]{id, name, email, phone, address});
+            }
+
+            statusLabel.setText("Buyers loaded successfully.");
+        } catch (Exception e) {
+            statusLabel.setText("Error loading buyers: " + e.getMessage());
+        }
+    }
+
+    private void deleteSelectedBuyer() {
+        int selectedRow = buyersTable.getSelectedRow();
+        if (selectedRow == -1) {
+            statusLabel.setText("Please select a buyer to delete.");
+            return;
+        }
+
+        int buyerId = (int) buyersTable.getValueAt(selectedRow, 0);
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this buyer?",
+                "Confirm Delete", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try (Connection con = DatabaseConnection.getConnection()) {
+                String sql = "DELETE FROM buyers WHERE id = ?";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setInt(1, buyerId);
+
+                int rowsDeleted = stmt.executeUpdate();
+                if (rowsDeleted > 0) {
+                    statusLabel.setText("Buyer deleted successfully.");
+                    loadBuyers(); // refresh table
+                } else {
+                    statusLabel.setText("Failed to delete buyer.");
+                }
+
+            } catch (Exception e) {
+                statusLabel.setText("Error: " + e.getMessage());
+            }
+        }
+    }
+
+    // Main method to test
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new ManageBuyersForm().setVisible(true));
+    }
+}
+
+manageproducts:package com.mycompany.loginform;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+
+public class ViewDeleteProductForm extends JFrame {
+
+    private JTable productTable;
+    private JButton deleteButton;
+    private JLabel statusLabel;
+
+    public ViewDeleteProductForm() {
+        setTitle("View & Delete Products");
+        setSize(600, 400);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        initComponents();
+        loadProducts();
+    }
+
+    private void initComponents() {
+        JScrollPane scrollPane = new JScrollPane();
+        productTable = new JTable();
+        deleteButton = new JButton("Delete Selected Product");
+        statusLabel = new JLabel(" ");
+
+        productTable.setModel(new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"ID", "Name", "Category", "Price", "Quantity"}
+        ));
+        scrollPane.setViewportView(productTable);
+
+        deleteButton.addActionListener(e -> deleteSelectedProduct());
+
+        GroupLayout layout = new GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 580, Short.MAX_VALUE)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(20, 20, 20)
+                    .addComponent(deleteButton)
+                    .addGap(30, 30, 30)
+                    .addComponent(statusLabel, GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                    .addContainerGap())
+        );
+
+        layout.setVerticalGroup(
+            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
+                    .addGap(18, 18, 18)
+                    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(deleteButton)
+                        .addComponent(statusLabel))
+                    .addContainerGap(30, Short.MAX_VALUE))
+        );
+
+        pack();
+    }
+
+    private void loadProducts() {
+        DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+        model.setRowCount(0); // Clear existing data
+
+        try (Connection con = DatabaseConnection.getConnection()) {
+            String sql = "SELECT * FROM products";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String category = rs.getString("category");
+                double price = rs.getDouble("price");
+                int quantity = rs.getInt("quantity");
+                model.addRow(new Object[]{id, name, category, price, quantity});
+            }
+
+        } catch (SQLException e) {
+            statusLabel.setText("Error loading data: " + e.getMessage());
+        }
+    }
+
+    private void deleteSelectedProduct() {
+        int selectedRow = productTable.getSelectedRow();
+        if (selectedRow == -1) {
+            statusLabel.setText("Please select a product to delete.");
+            return;
+        }
+
+        int id = (int) productTable.getValueAt(selectedRow, 0);
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete this product?",
+                "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try (Connection con = DatabaseConnection.getConnection()) {
+                String sql = "DELETE FROM products WHERE id = ?";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setInt(1, id);
+                int rowsDeleted = stmt.executeUpdate();
+
+                if (rowsDeleted > 0) {
+                    statusLabel.setText("Product deleted.");
+                    loadProducts(); // Refresh table
+                } else {
+                    statusLabel.setText("Deletion failed.");
+                }
+
+            } catch (SQLException e) {
+                statusLabel.setText("Error: " + e.getMessage());
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new ViewDeleteProductForm().setVisible(true));
+    }
+}
+
+
+
+database connection:package com.mycompany.loginform;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class DatabaseConnection {
+
+    // Replace these with your actual database details
+    private static final String URL = "jdbc:mysql://localhost:3306/loginapp";
+    private static final String USER = "root"; // default username
+    private static final String PASSWORD = ""; // default is empty if no password
+
+    public static Connection getConnection() {
+        Connection connection = null;
+        try {
+            // Load the MySQL JDBC Driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Establish the connection
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Connected to MySQL database!");
+        } catch (ClassNotFoundException | SQLException e) {
+            System.err.println("Connection error: " + e.getMessage());
+        }
+        return connection;
+    }
+
+    // Optional: Test the connection
+    public static void main(String[] args) {
+        getConnection();
+    }
+}
+
